@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin | Users{% endblock %}
+
+{% block body %}
+    <div class="row">
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <b>User update</b>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form) }}
+                    {{ form_row(form.email, {
+                        'attr': {
+                            'class': 'form-control',
+                        }
+                    }) }}
+
+                    {{ form_row(form.plain_password, {
+                        'attr': {
+                            'class': 'form-control',
+                        }
+                    }) }}
+
+                    <div class="form-check">
+                        {{ form_widget(form.enabled, {
+                            'attr': {
+                                'class': 'form-check-input'
+                            }
+                        }) }}
+                        {{ form_label(form.enabled, "Is enabled ?", {
+                            'attr': {
+                                'class': 'form-check-label'
+                            }
+                        }) }}
+                    </div>
+
+                    <div class="form-group col-md-12 text-right">
+                        {{ form_widget(form.submit, {'label': 'Update','attr':{'class': 'btn btn-primary btn-admin-update'}}) }}
+                    </div>
+                    {{ form_end(form) }}
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

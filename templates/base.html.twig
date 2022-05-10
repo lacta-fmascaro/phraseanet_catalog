@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Admin{% endblock %}</title>
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+    <link rel="stylesheet" href="{{ asset('css/main.css') }}">
+    <script type="text/javascript" src="{{ asset('js/jquery.min.js') }}"></script>
+    <script type="text/javascript" async="" src="{{ asset('js/main.js') }}"></script>
+</head>
+<body class="admin" id="{{ app.request.get('_route') }}">
+<nav class="navbar navbar-expand-md navbar-fixed-top navbar-admin p-0">
+    <div class="container">
+
+        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#admin-navbar-items"
+                aria-controls="admin-navbar-items" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="admin-navbar-items">
+            <div class="navbar-nav mr-auto">
+                {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+
+                    <a class="nav-item nav-link{% if app.request.attributes.get('_route') == 'app_search' %} active{% endif %}"
+                       href="{{ path('app_search') }}">Search</a>
+
+                    <a class="nav-item nav-link{% if app.request.attributes.get('_route') == 'app_users' %} active{% endif %}"
+                       href="{{ path('app_users') }}">Users</a>
+
+                {% endif %}
+            </div>
+            <div class="navbar-nav">
+
+                {% if app.user %}
+
+                    <a class="nav-item nav-link" href="#">{{ app.user.email }}</a>
+                    <a class="nav-item nav-link" href="{{ path('app_logout') }}">Logout</a>
+
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div class="mt-1 mb-1">
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger" role="alert">{{ message }}</div>
+        {% endfor %}
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success" role="alert">{{ message }}</div>
+        {% endfor %}
+
+    </div>
+
+    {% block body %}{% endblock %}
+</div>
+</body>
+</html>
+
+
+
+
+

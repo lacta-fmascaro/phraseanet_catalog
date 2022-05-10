@@ -1,0 +1,136 @@
+html.no-js #noJS, html.js #contactConso {display: block;}
+html.js #noJS, html.no-js #contactConso {display: none;}
+html {overflow: auto;}
+body { background:transparent;padding-bottom:30px; }
+em {color:red;}
+label.control-label + a {color:#333;float: right !important;}
+label.control-label + a:hover {cursor:pointer;}
+a:focus {outline:0 !important;}
+div#submitTooltip {display: inline-block;}
+div#waiting {display:none;position:absolute;top:0;bottom:0;right:0;left:0;background-image:url('../img/bg-spinner.gif');background-position:center center;background-repeat:no-repeat;background-size:70px 70px;background-color:rgba(255,255,255,0.5);z-index:9999;}
+div.form-group.has-error label {
+    color: #E20027;
+}
+div.form-group.has-error input,
+div.form-group.has-error textarea {
+    border-color: #E20027;
+}
+div.form-group span.help-block {
+    color: #E20027;
+}
+
+.export-btn{
+    float: right;
+}
+
+.object img {
+    width: auto;
+    height: 205px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.object{
+    display: inline-block;
+    width: 32%;
+    max-height: 300px;
+    overflow: hidden;
+    padding: 0;
+    text-align: center;
+    position: relative;
+    background-color: white;
+    margin: 3px;
+    height: 300px;
+}
+
+.object .object-checkbox {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+}
+
+.results-list{
+    background-color: whitesmoke;
+}
+
+.object .media-heading{
+    background-color: #7092BE;
+    color: white;
+    height: 75px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.main-characteristics{
+    display: none;
+}
+
+.object .object-zoom{
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    cursor: pointer;
+}
+
+.gg-zoom-in {
+    box-sizing: border-box;
+    position: relative;
+    display: block;
+    transform: scale(var(--ggs,1));
+    width: 16px;
+    height: 16px;
+    border: 2px solid;
+    border-radius: 100%;
+    background:
+            linear-gradient(to bottom,
+            currentColor 5px,transparent 0)
+            no-repeat 2px 5px/8px 2px;
+    margin-top: -4px
+}
+.gg-zoom-in::after,
+.gg-zoom-in::before {
+    content: "";
+    display: block;
+    box-sizing: border-box;
+    position: absolute;
+    width: 2px;
+    height: 8px;
+    background: currentColor
+}
+.gg-zoom-in::after {
+    transform: rotate(-45deg);
+    border-radius: 3px;
+    top: 10px;
+    left: 12px
+}
+.gg-zoom-in::before {
+    top: 2px;
+    left: 5px
+}
+
+.twAudessus {
+    /* Le trame de fond */
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    z-index: 100000;
+    top: 0;
+    left: 0;
+    display: none;
+    background: rgba(0,0,0,0.7);
+}
+
+.twAudessus a {
+    /* Le truc pour centrer l’image */
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.twAudessus img {
+    /* Le contour de l’image */
+    max-width:1200px;
+    padding: 10px;
+    background: #ffffff;
+}

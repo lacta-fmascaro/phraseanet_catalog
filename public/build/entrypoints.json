@@ -1,0 +1,15 @@
+{
+  "entrypoints": {
+    "app": {
+      "js": [
+        "/dam_catalog/public/build/runtime.js",
+        "/dam_catalog/public/build/vendors~app.js",
+        "/dam_catalog/public/build/app.js"
+      ],
+      "css": [
+        "/dam_catalog/public/build/vendors~app.css",
+        "/dam_catalog/public/build/app.css"
+      ]
+    }
+  }
+}

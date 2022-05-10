@@ -1,0 +1,305 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Search{% endblock %}
+
+{% block body %}
+    <div class="row">
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <b>Filters</b>
+                </div>
+                <div class="card-body">
+                    <form id="search_form" class="form-horizontal">
+                        <div class="form-group" id="search_keywords_group">
+                            <label for="search_keywords" class="col-md-12 control-label">Search</label>
+                            <div class="col-md-12">
+                                <input type="text" name="search_keywords" class="form-control" id="search_keywords">
+                            </div>
+                        </div>
+                        <div id="facets"></div>
+                        <div class="col-md-12">
+                            <button type="submit" form="search_form" value="Search" id="search_submit"
+                                    class="btn btn-primary btn-admin-create">
+                                Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-list"></i> <b>Results</b>
+                    <div class="export-btn">
+                        <input type="checkbox" id="select-all"/>
+                        <label for="select-all">Select All</label>
+                        <div id="cart_button_group" class="btn-group pull-right">
+                            <form method="post" action="{{ path('app_export') }}" target="_blank" id="form_cart_submit" enctype="application/json">
+                                <input type="hidden" name="items" id="form_cart_query" value="">
+                            <button type="button" class="btn btn-danger btn-sm" value="Export" id="cart_submit">
+                                <i class="fa fa-download"></i>Export
+                                <span id="cart-count" class="cart-count">(0)</span>
+                            </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div id="spinner"><img src="{{ asset("img/spinner.gif") }}" alt="loader"></div>
+                    <div id="no-result">Please, fill search filters then press the "Search" button.</div>
+                    <div class="search-wait"></div>
+                </div>
+
+                <div class="results-list" id="results-list">
+                </div>
+
+                <div class="paging pb-4" id="pages">
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        $('#spinner').hide();
+
+        var launchSearch = function (page) {
+            // Affichage
+            var resultsList = $('#results-list');
+            resultsList.empty();
+
+            var resultsSpinner = $('#spinner');
+            resultsSpinner.show();
+
+            // Build query
+
+            var queryArray = [];
+
+            queryArray['search_keywords'] = $('#search_keywords').val();
+
+            var selectedFacets = [];
+            $('.facet option:selected').each(function () {
+                queryArray[$(this).parent().attr('name')] = $(this).val();
+            });
+
+            var query = JSON.stringify(Object.assign({}, queryArray));
+
+            // Search
+
+            $.ajax({
+                type: 'POST',
+                url: '{{ path('app_search_records') }}/' + page,
+                data: query,
+                dataType: 'json',
+                success: function (data) {
+
+                    // Results list
+
+                    if (data.objects.length == 0) {
+                        $('#no-result').text('No results. Please, adjust your search filters then press the "Search" button.');
+                        $('#no-result').show();
+                    }
+
+                    $.each(data.objects, function (index, value) {
+
+                        var div = $(document.createElement('div'));
+                        div.addClass('object');
+
+                        var img = $(document.createElement('img'));
+                        img.addClass('media-object');
+                        img.attr('src', value.search_result.thumbnail.permalink.url);
+                        div.append(img);
+
+                        var a = $(document.createElement('a'));
+                        a.addClass('object-zoom');
+                        a.attr('onclick', 'showImg(' + value.search_result.record_id + ')');
+                        var i = $(document.createElement('i'));
+                        i.addClass('gg-zoom-in');
+                        a.append(i);
+                        div.append(a);
+
+                        var input = $(document.createElement('input'));
+                        input.addClass('object-checkbox');
+                        input.attr('type', 'checkbox');
+                        input.attr('data-databox-id', value.search_result.databox_id);
+                        input.attr('data-record-id', value.search_result.record_id);
+                        input.attr('onclick', 'checkItem(this)');
+                        if (typeof selectedItems[value.search_result.databox_id + '-' + value.search_result.record_id] !== 'undefined') {
+                            input.attr('checked', true);
+                        }
+                        div.append(input);
+
+                        var zoom = $(document.createElement('div'));
+                        zoom.addClass('twAudessus');
+                        zoom.attr('id', 'id' + value.search_result.record_id);
+                        zoom.attr('style', 'display: none;');
+                        var zoomA = $(document.createElement('a'));
+                        zoomA.attr('onclick', 'hideImg(' + value.search_result.record_id + ')');
+                        var zoomImg = $(document.createElement('img'));
+                        zoomImg.attr('src', value.search_result.thumbnail.permalink.url);
+                        zoomA.append(zoomImg);
+                        zoom.append(zoomA);
+                        div.append(zoom);
+
+                        var heading = $(document.createElement('div'));
+                        heading.addClass('media-heading');
+                        var span = $(document.createElement('span'));
+                        span.text(value.metadata['ProductName'] ?? value.search_result.title);
+                        heading.append(span);
+                        div.append(heading);
+
+                        resultsList.append(div);
+                    });
+
+                    // Pagination
+
+                    var resultsPages = $('#pages');
+                    resultsPages.empty();
+
+                    if (data.page_number > 0) {
+
+                        var nav = $(document.createElement('nav'));
+                        var ul = $(document.createElement('ul'));
+                        ul.addClass('pagination float-right');
+
+                        if (data.page > 1) {
+                            var p = parseInt(data.page) - 1;
+                            var li = $(document.createElement('li'));
+                            li.addClass('page-item');
+                            var a = $(document.createElement('li'));
+                            a.addClass('page-link');
+                            a.attr('onclick', "launchSearch(" + p + ");");
+                            a.text('Previous');
+                            li.append(a);
+                            ul.append(li);
+                        }
+
+                        if (data.page < data.page_number) {
+                            var p = parseInt(data.page) + 1;
+                            var li = $(document.createElement('li'));
+                            li.addClass('page-item');
+                            var a = $(document.createElement('li'));
+                            a.addClass('page-link');
+                            a.attr('onclick', "launchSearch(" + p + ");");
+                            a.text('Next');
+                            li.append(a);
+                            ul.append(li);
+                        }
+
+                        nav.append(ul);
+                        resultsPages.append(nav);
+                    }
+
+                    // Facets
+
+                    var facets = $('#facets');
+                    facets.empty();
+
+                    $.each(data.facets, function (index, value) {
+
+                        var div = $(document.createElement('div'));
+                        div.addClass('form-group');
+
+                        var label = $(document.createElement('label'));
+                        label.addClass('col-md-12 control-label');
+                        label.text(value.name);
+                        div.append(label);
+
+                        var div2 = $(document.createElement('div'));
+                        div2.addClass('col-md-12');
+
+                        var select = $(document.createElement('select'));
+                        select.addClass('form-control facet');
+                        select.attr('name', value.field);
+
+                        var option = $(document.createElement('option'));
+                        option.attr('value', '');
+                        option.text('');
+                        select.append(option);
+
+                        $.each(value.values, function (idx, facet) {
+                            var option = $(document.createElement('option'));
+                            option.attr('value', facet.query);
+                            option.text(facet.value);
+
+                            if (facet.selected) {
+                                option.attr('selected', 'selected');
+                            }
+
+                            select.append(option);
+                        });
+
+                        div2.append(select);
+                        div.append(div2);
+
+                        facets.append(div);
+                    });
+
+                    resultsSpinner.hide();
+                    $('.panel-body .search-wait').hide();
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+
+                    // Set error message
+                    resultsSpinner.hide();
+                }
+            });
+        };
+
+        $('#search_form').submit(function (e) {
+
+            $('#no-result').hide();
+            $('.panel-body .search-wait').text('Search in progress...');
+            $('.panel-body .search-wait').show();
+
+            launchSearch(1);
+            e.preventDefault();
+            return false;
+        });
+
+        //checkboxes + cart-count
+        var selectedItems = [];
+
+        function checkItem(checkboxObject) {
+            if (checkboxObject.checked == true) {
+                var tempArr = [];
+                tempArr["databox_id"] = checkboxObject.dataset.databoxId;
+                tempArr["record_id"] = checkboxObject.dataset.recordId;
+                selectedItems[checkboxObject.dataset.databoxId + '-' + checkboxObject.dataset.recordId] = tempArr;
+            } else {
+                delete selectedItems[checkboxObject.dataset.databoxId + '-' + checkboxObject.dataset.recordId];
+            }
+            console.log(selectedItems);
+        }
+
+        $('#cart_submit').click(function (e) {
+
+            var items = [];
+
+            Object.keys(selectedItems).forEach(function(key, index) {
+
+                var item = new Object();
+                item.databox_id = selectedItems[key]['databox_id'];
+                item.record_id = selectedItems[key]['record_id'];
+
+                items.push(item);
+            }, selectedItems);
+
+            var query = JSON.stringify(Object.assign({}, items));
+
+            $('#form_cart_query').attr('value', btoa(query));
+
+            $('#form_cart_submit').submit();
+        });
+
+    </script>
+
+{% endblock %}
